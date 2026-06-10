@@ -10,6 +10,7 @@ import (
 	"gitty/internal/ui/initflow"
 	"gitty/internal/ui/menu"
 	"gitty/internal/ui/nav"
+	"gitty/internal/ui/pushflow"
 	"gitty/internal/ui/treeflow"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,6 +28,7 @@ const (
 	stateCommit
 	stateTree
 	stateMessage
+	statePush
 )
 
 type Model struct {
@@ -37,6 +39,7 @@ type Model struct {
 	initFlow   initflow.Model
 	commitFlow commitflow.Model
 	treeFlow   treeflow.Model
+	pushFlow   pushflow.Model
 	nav        nav.Model
 	about      about.Model
 	quitting   bool
@@ -97,7 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = stateGit
 		m.gitMenu = menu.NewGit(m.width, m.height)
 		return m, nil
-	case nav.BackMsg, about.BackMsg, commitflow.BackMsg, treeflow.BackMsg:
+	case nav.BackMsg, about.BackMsg, commitflow.BackMsg, treeflow.BackMsg, pushflow.BackMsg:
 		m.state = m.prevState
 		return m, nil
 	case tea.KeyMsg:
@@ -147,6 +150,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var updated tea.Model
 		updated, cmd = m.treeFlow.Update(msg)
 		m.treeFlow = updated.(treeflow.Model)
+	case statePush:
+		var updated tea.Model
+		updated, cmd = m.pushFlow.Update(msg)
+		m.pushFlow = updated.(pushflow.Model)
 	}
 
 	return m, cmd
@@ -173,6 +180,8 @@ func (m Model) View() string {
 		return m.commitFlow.View()
 	case stateTree:
 		return m.treeFlow.View()
+	case statePush:
+		return m.pushFlow.View()
 	case stateMessage:
 		return m.viewMessage()
 	}
@@ -244,8 +253,13 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 		}
 		m.prevState = stateGit
 		m.state = stateTree
-		m.treeFlow = treeflow.New(m.width, m.height)
+		m.treeFlow = treeflow.New(m.width, m.height, msg.Choice == "Add Files")
 		return m, m.treeFlow.Init()
+	case "Push Commits":
+		m.prevState = stateGit
+		m.state = statePush
+		m.pushFlow = pushflow.New(m.width, m.height)
+		return m, m.pushFlow.Init()
 	case "Quit":
 		m.quitting = true
 		return m, tea.Quit
