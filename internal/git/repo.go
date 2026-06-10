@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -25,4 +26,51 @@ func CurrentBranch() string {
 		return "unknown"
 	}
 	return strings.TrimSpace(string(out))
+}
+
+// check status of repo changes and pushes
+func CheckRepoStatus() (hasChanges bool, hasPushes bool) {
+	// run git status porcelain to see if working tree is dirty
+	statusCmd := exec.Command("git", "status", "--porcelain")
+	statusOut, err := statusCmd.Output()
+	if err == nil && len(strings.TrimSpace(string(statusOut))) > 0 {
+		hasChanges = true
+		return
+	}
+
+	// check if branch is ahead of upstream [gitdocs]
+	upstreamCmd := exec.Command("git", "rev-parse", "--abbrev-ref", "@{u}")
+	upstreamOut, err := upstreamCmd.Output()
+	if err == nil {
+		upstream := strings.TrimSpace(string(upstreamOut))
+		countCmd := exec.Command("git", "rev-list", "--count", upstream+"..HEAD")
+		countOut, err := countCmd.Output()
+		if err == nil {
+			var count int
+			_, _ = fmt.Sscanf(strings.TrimSpace(string(countOut)), "%d", &count)
+			if count > 0 {
+				hasPushes = true
+				return
+			}
+		}
+	} else {
+		// if no upstream, check if there are any remotes [gitdocs]
+		remoteCmd := exec.Command("git", "remote")
+		remoteOut, _ := remoteCmd.Output()
+		if len(strings.TrimSpace(string(remoteOut))) > 0 {
+			// there is at least one remote, check if we have commits not pushed to any remote
+			countCmd := exec.Command("git", "rev-list", "--count", "HEAD", "--not", "--remotes")
+			countOut, err := countCmd.Output()
+			if err == nil {
+				var count int
+				_, _ = fmt.Sscanf(strings.TrimSpace(string(countOut)), "%d", &count)
+				if count > 0 {
+					hasPushes = true
+					return
+				}
+			}
+		}
+	}
+
+	return
 }

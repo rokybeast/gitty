@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"os"
 
 	"gitty/internal/git"
@@ -12,6 +13,7 @@ import (
 	"gitty/internal/ui/treeflow"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type state int
@@ -24,19 +26,23 @@ const (
 	stateAbout
 	stateCommit
 	stateTree
+	stateMessage
 )
 
 type Model struct {
-	state     state
-	prevState state // where to go back to from about/sub-screens
-	noGit     menu.NoGitModel
-	gitMenu   menu.GitModel
-	initFlow  initflow.Model
-	nav       nav.Model
-	about     about.Model
-	quitting  bool
-	width     int
-	height    int
+	state      state
+	prevState  state // where to go back to from about/sub-screens
+	noGit      menu.NoGitModel
+	gitMenu    menu.GitModel
+	initFlow   initflow.Model
+	commitFlow commitflow.Model
+	treeFlow   treeflow.Model
+	nav        nav.Model
+	about      about.Model
+	quitting   bool
+	width      int
+	height     int
+	message    string
 }
 
 // make a new fresh model and detect the git repo to pick the first state
@@ -99,6 +105,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quitting = true
 			return m, tea.Quit
 		}
+		if m.state == stateMessage {
+			switch msg.String() {
+			case "esc", "enter", "q":
+				m.state = m.prevState
+				return m, nil
+			}
+		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -160,6 +173,8 @@ func (m Model) View() string {
 		return m.commitFlow.View()
 	case stateTree:
 		return m.treeFlow.View()
+	case stateMessage:
+		return m.viewMessage()
 	}
 
 	return ""
@@ -196,11 +211,37 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 		m.about = about.New()
 		return m, m.about.Init()
 	case "Commit":
+		hasChanges, hasPushes := git.CheckRepoStatus()
+		if !hasChanges {
+			m.prevState = stateGit
+			m.state = stateMessage
+			repo := git.RepoName()
+			branch := git.CurrentBranch()
+			if hasPushes {
+				m.message = fmt.Sprintf("󰳏 %s/%s is clean, now, just push 'em! great job completing it! (I think..)", repo, branch)
+			} else {
+				m.message = fmt.Sprintf("󰳏 %s/%s is clean and nothing is Left, done for the day? (I hope not)", repo, branch)
+			}
+			return m, nil
+		}
 		m.prevState = stateGit
 		m.state = stateCommit
 		m.commitFlow = commitflow.New(m.width, m.height)
 		return m, m.commitFlow.Init()
 	case "Add Files", "Project Tree":
+		hasChanges, hasPushes := git.CheckRepoStatus()
+		if !hasChanges {
+			m.prevState = stateGit
+			m.state = stateMessage
+			repo := git.RepoName()
+			branch := git.CurrentBranch()
+			if hasPushes {
+				m.message = fmt.Sprintf("󰳏 %s/%s is clean, Only Pushes Are Left, Good Job! (I think..)", repo, branch)
+			} else {
+				m.message = fmt.Sprintf("󰳏 %s/%s is clean, Nothing is Left, Done for the day (I hope not)", repo, branch)
+			}
+			return m, nil
+		}
 		m.prevState = stateGit
 		m.state = stateTree
 		m.treeFlow = treeflow.New(m.width, m.height)
@@ -211,4 +252,24 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 	}
 	// other options will be wired up as we build them
 	return m, nil
+}
+
+var (
+	messageStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#81a1c1")). // nord frost blue
+			Bold(true)
+
+	messageHintStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#4c566a")) // nord muted gray
+)
+
+func (m Model) viewMessage() string {
+	msg := messageStyle.Render(m.message)
+	hint := messageHintStyle.Render("\n\npress esc/enter/q to go back")
+	fullText := msg + hint
+	return lipgloss.NewStyle().
+		Width(m.width).
+		Height(m.height).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render(fullText)
 }
