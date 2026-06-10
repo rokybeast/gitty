@@ -30,6 +30,7 @@ type GitModel struct {
 func NewGit(width, height int) GitModel {
 	items := []list.Item{
 		item{title: "All Git Tools", desc: "merge, rebase, reset, restore, fetch, pull, status and more"},
+		item{title: "Add Files", desc: "stage or unstage files for commit"},
 		item{title: "Commit", desc: "stage, write and push a commit"},
 		item{title: "Project Tree", desc: "view and manage tracked files"},
 		item{title: "Commit History", desc: "browse the commit log with a nice graph"},
