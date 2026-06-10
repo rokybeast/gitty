@@ -72,7 +72,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	title := titleStyle.Render("Navigate to a Git repository")
+	title := titleStyle.Render("navigate to a Git repository")
 	view := m.picker.View()
 
 	if m.err != "" {

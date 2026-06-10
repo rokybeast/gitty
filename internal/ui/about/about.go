@@ -43,7 +43,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	title := titleStyle.Render("About gitty")
+	title := titleStyle.Render("about gitty")
 	body := bodyStyle.Render(
 		"gitty is a feature-rich, aesthetically good looking and mainly, a minimal TUI tool.\n" +
 			"Built with Golang, and with 󰋑 for  \n\n" +
