@@ -29,12 +29,13 @@ type GitModel struct {
 // the main git menu
 func NewGit(width, height int) GitModel {
 	items := []list.Item{
-		item{title: "All Git Tools", desc: "merge, rebase, reset, restore, fetch, pull, status and more"},
 		item{title: "Add Files", desc: "stage or unstage files for commit"},
-		item{title: "Commit", desc: "stage, write and push a commit"},
+		item{title: "Commit", desc: "stage and write commits"},
+		item{title: "Push Commits", desc: "push the commits to different remotes"},
+		item{title: "Change Branch", desc: "switch to a different branch"},
 		item{title: "Project Tree", desc: "view and manage tracked files"},
 		item{title: "Commit History", desc: "browse the commit log with a nice graph"},
-		item{title: "Change Branch", desc: "switch to a different branch"},
+		item{title: "Other Git Tools", desc: "merge, rebase, reset, restore, fetch, pull, status and more..."},
 		item{title: "About gitty", desc: "info about gitty"},
 		item{title: "Quit", desc: "exit gitty :("},
 	}
