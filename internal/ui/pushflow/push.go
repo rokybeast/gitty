@@ -580,13 +580,14 @@ func (m Model) viewDone() string {
 	if !hasChanges && !hasPushes {
 		messageStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#81a1c1")).Bold(true)
 		messageHintStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a"))
-		msg := messageStyle.Render(fmt.Sprintf("󰳏 %s/%s is clean and nothing is left, done for the day? hope not ;)", repoName, branch))
-		hint := messageHintStyle.Render("\n\npress esc/enter/q to go back")
+		msg := messageStyle.Render(fmt.Sprintf("󰳏 %s/%s is clean and nothing is Left, done for the day? (I hope not)", repoName, branch))
+		hint := messageHintStyle.Render("press esc/enter/q to go back")
+		fullText := lipgloss.JoinVertical(lipgloss.Center, msg, "", hint)
 		return lipgloss.NewStyle().
 			Width(m.width).
 			Height(m.height).
 			Align(lipgloss.Center, lipgloss.Center).
-			Render(msg + hint)
+			Render(fullText)
 	}
 
 	var header string

@@ -294,8 +294,8 @@ var (
 
 func (m Model) viewMessage() string {
 	msg := messageStyle.Render(m.message)
-	hint := messageHintStyle.Render("\n\npress esc/enter/q to go back")
-	fullText := msg + hint
+	hint := messageHintStyle.Render("press esc/enter/q to go back")
+	fullText := lipgloss.JoinVertical(lipgloss.Center, msg, "", hint)
 	return lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height).
