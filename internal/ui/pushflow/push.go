@@ -19,6 +19,7 @@ const (
 	stepCommits pushStep = iota
 	stepRemotes
 	stepPushing
+	stepDone
 )
 
 type BackMsg struct{}
@@ -67,25 +68,34 @@ var (
 	msgStyle           = lipgloss.NewStyle().Foreground(lipgloss.Color("#eceff4"))
 	cursorStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("#88C0D0")).Bold(true)
 	titleStyle         = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#a78bfa")).PaddingLeft(4)
+
+	pushSuccessStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#A3BE8C")). // nord green
+				Bold(true).
+				PaddingLeft(4)
+
+	pushDetailStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#d8dee9")). // nord snow
+				PaddingLeft(4)
+
+	pushHintStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
+			PaddingLeft(4).
+			MarginTop(1)
 )
 
 func New(width, height int) Model {
 	commits := getUnpushedCommits()
 	remotes := getRemotes()
 
-	step := stepCommits
-
-	// if only one commit is found, auto select that commit (why waste time by showing the menu? *think monkey, think*)
-	if len(commits) == 1 {
-		commits[0].selected = true
-		commits[0].explicit = true
-	}
-
-	// if we have <= 1 commits (yay), continue
-	if len(commits) <= 1 {
-		step = stepRemotes
-		if len(remotes) <= 1 {
-			step = stepPushing
+	var step pushStep
+	if len(commits) == 0 {
+		step = stepDone
+	} else {
+		step = stepCommits
+		if len(commits) == 1 {
+			commits[0].selected = true
+			commits[0].explicit = true
 		}
 	}
 
@@ -187,6 +197,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.step = stepPushing
 				return m, m.startPush()
 			}
+
+		case stepDone:
+			switch msg.String() {
+			case "enter", "q":
+				return m, func() tea.Msg { return BackMsg{} }
+			}
 		}
 
 	case pushResultMsg:
@@ -199,12 +215,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		m.success = true
-		return m, tea.Tick(900*time.Millisecond, func(t time.Time) tea.Msg {
-			return tickMsg{}
-		})
-
-	case tickMsg:
-		return m, func() tea.Msg { return BackMsg{} }
+		m.step = stepDone
+		return m, nil
 	}
 
 	var cmd tea.Cmd
@@ -342,6 +354,8 @@ func (m Model) View() string {
 				indent, hint,
 			))
 		}
+	case stepDone:
+		view.WriteString(m.viewDone())
 	}
 
 	return view.String()
@@ -564,4 +578,36 @@ func runPushCmd(remote string, branch string, oldestHash string, allSelected boo
 			stderr: stderr.String(),
 		}
 	}
+}
+
+func (m Model) viewDone() string {
+	repoName := git.RepoName()
+	branch := git.CurrentBranch()
+
+	var header string
+	var detail string
+
+	if len(m.commits) == 0 {
+		header = pushSuccessStyle.Render(
+			fmt.Sprintf("everything up-to-date on [\uf126 %s/%s]", repoName, branch),
+		)
+		detail = pushDetailStyle.Render("no unpushed commits found.")
+	} else {
+		numCommits := 0
+		for _, c := range m.commits {
+			if c.selected {
+				numCommits++
+			}
+		}
+		header = pushSuccessStyle.Render(
+			fmt.Sprintf("pushed to [\uf126 %s/%s]", repoName, branch),
+		)
+		detail = pushDetailStyle.Render(
+			fmt.Sprintf("pushed %d commit(s) successfully.", numCommits),
+		)
+	}
+
+	hint := pushHintStyle.Render("press esc to go back to the menu")
+
+	return lipgloss.JoinVertical(lipgloss.Left, "", header, "", detail, "", hint)
 }
