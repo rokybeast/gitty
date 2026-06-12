@@ -40,10 +40,10 @@ type NoGitModel struct {
 // the no git menu (its useful)
 func NewNoGit() NoGitModel {
 	items := []list.Item{
-		item{title: "Initialize a Git Repository", desc: "set up a new repo with the base files (README.md, LICENSE, .gitignore)"},
-		item{title: "Navigate to a Git Repository", desc: "browse to an existing repo"},
-		item{title: "About gitty", desc: "info about gitty"},
-		item{title: "Quit", desc: "exit gitty :("},
+		item{title: "󰳏 Initialize a Git Repository", desc: "set up a new repo with the base files (README.md, LICENSE, .gitignore)"},
+		item{title: "󱣱 Navigate to a Git Repository", desc: "browse to an existing repo"},
+		item{title: "󰋼 About gitty", desc: "info about gitty"},
+		item{title: "󰈆 Quit", desc: "exit gitty :("},
 	}
 
 	l := list.New(items, list.NewDefaultDelegate(), 0, 0)
