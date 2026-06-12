@@ -82,6 +82,11 @@ var (
 			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
 			PaddingLeft(4).
 			MarginTop(1)
+
+	pushErrorStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#BF616A")). // nord red
+			Bold(true).
+			PaddingLeft(4)
 )
 
 func New(width, height int) Model {
@@ -212,6 +217,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.pushErr == "" {
 				m.pushErr = msg.err.Error()
 			}
+			m.step = stepDone
 			return m, nil
 		}
 		m.success = true
@@ -331,27 +337,6 @@ func (m Model) View() string {
 				hashList,
 				arrow,
 				boldRemote,
-			))
-		} else if m.success {
-			checkmark := lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Render("✓")
-			upToDateText := lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Render("[Up To Date]")
-			view.WriteString(fmt.Sprintf("%s%s Pushed %s Commits (%s) %s %s %s\n",
-				indent,
-				checkmark,
-				boldN,
-				hashList,
-				arrow,
-				boldRemote,
-				upToDateText,
-			))
-		} else if m.pushErr != "" {
-			errHeader := lipgloss.NewStyle().Foreground(lipgloss.Color("#BF616A")).Bold(true).Render("push failed!")
-			errDetail := lipgloss.NewStyle().Foreground(lipgloss.Color("#BF616A")).Render(m.pushErr)
-			hint := lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a")).Render("[esc - go back]")
-			view.WriteString(fmt.Sprintf("%s%s\n\n%s%s\n\n%s%s\n",
-				indent, errHeader,
-				indent, errDetail,
-				indent, hint,
 			))
 		}
 	case stepDone:
@@ -581,6 +566,13 @@ func runPushCmd(remote string, branch string, oldestHash string, allSelected boo
 }
 
 func (m Model) viewDone() string {
+	if m.pushErr != "" {
+		errMsg := pushErrorStyle.Render("push failed!")
+		detail := pushDetailStyle.Render(m.pushErr)
+		hint := pushHintStyle.Render("press esc to go back")
+		return lipgloss.JoinVertical(lipgloss.Left, "", errMsg, "", detail, "", hint)
+	}
+
 	repoName := git.RepoName()
 	branch := git.CurrentBranch()
 
@@ -594,16 +586,31 @@ func (m Model) viewDone() string {
 		detail = pushDetailStyle.Render("no unpushed commits found.")
 	} else {
 		numCommits := 0
+		var selectedHashes []string
 		for _, c := range m.commits {
 			if c.selected {
 				numCommits++
+				selectedHashes = append(selectedHashes, c.short)
 			}
 		}
+		hashList := strings.Join(selectedHashes, ", ")
+
+		selectedRemote := ""
+		for _, r := range m.remotes {
+			if r.selected {
+				selectedRemote = r.name
+				break
+			}
+		}
+		if selectedRemote == "" && len(m.remotes) > 0 {
+			selectedRemote = m.remotes[0].name
+		}
+
 		header = pushSuccessStyle.Render(
 			fmt.Sprintf("pushed to [\uf126 %s/%s]", repoName, branch),
 		)
 		detail = pushDetailStyle.Render(
-			fmt.Sprintf("pushed %d commit(s) successfully.", numCommits),
+			fmt.Sprintf("pushed %d commit(s) (%s) -> %s", numCommits, hashList, selectedRemote),
 		)
 	}
 
