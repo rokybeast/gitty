@@ -44,27 +44,33 @@ var (
 )
 
 type treeNode struct {
-	path   string
-	name   string
-	isDir  bool
-	prefix string
-	status string
+	path     string
+	name     string
+	isDir    bool
+	prefix   string
+	status   string
+	expanded bool
+	sha      string
 }
 
 type Model struct {
-	nodes      []treeNode
-	cursor     int
-	width      int
-	height     int
-	latestSHA  string
-	isAddFiles bool
+	nodes        []treeNode
+	cursor       int
+	width        int
+	height       int
+	latestSHA    string
+	isAddFiles   bool
+	expandedDirs map[string]bool
+	shaCache     map[string]string
 }
 
 func New(width, height int, isAddFiles bool) Model {
 	m := Model{
-		width:      width,
-		height:     height,
-		isAddFiles: isAddFiles,
+		width:        width,
+		height:       height,
+		isAddFiles:   isAddFiles,
+		expandedDirs: make(map[string]bool),
+		shaCache:     make(map[string]string),
 	}
 	m.refresh()
 	return m
@@ -77,7 +83,7 @@ func (m Model) Init() tea.Cmd {
 // refresh tree data and git statuses
 func (m *Model) refresh() {
 	statuses := getGitStatus()
-	m.nodes = buildTree(".", "", statuses)
+	m.nodes = buildTree(".", "", statuses, m.expandedDirs, m.shaCache)
 	m.latestSHA = git.LatestShortSHA()
 
 	if m.cursor >= len(m.nodes) {
@@ -109,11 +115,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < len(m.nodes)-1 {
 				m.cursor++
 			}
-		case " ", "a":
+		case "a":
 			if len(m.nodes) > 0 {
 				node := m.nodes[m.cursor]
 				toggleStaging(node)
 				m.refresh()
+			}
+		case " ":
+			if len(m.nodes) > 0 {
+				node := m.nodes[m.cursor]
+				if node.isDir {
+					gitPath := filepath.ToSlash(node.path)
+					m.expandedDirs[gitPath] = !m.expandedDirs[gitPath]
+					m.refresh()
+				}
 			}
 		}
 	}
@@ -123,9 +138,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var view strings.Builder
 	if m.isAddFiles {
-		view.WriteString(titleStyle.Render("add files (space/a to stage/unstage, enter/esc to go back)") + "\n\n")
+		view.WriteString(titleStyle.Render("add files (a: stage/unstage, space: toggle folder, enter/esc: go back)") + "\n\n")
 	} else {
-		view.WriteString(titleStyle.Render(fmt.Sprintf("project tree (%s)", m.latestSHA)) + "\n\n")
+		view.WriteString(titleStyle.Render(fmt.Sprintf("project tree (%s) (space: toggle folder, enter/esc: go back)", m.latestSHA)) + "\n\n")
 	}
 
 	if len(m.nodes) == 0 {
@@ -159,10 +174,14 @@ func (m Model) View() string {
 		}
 
 		colorStyle := defaultStyle
-		icon := "󰈔"
+		icon := "󰈔" // nf-md-file
 		if node.isDir {
 			colorStyle = dirStyle
-			icon = ""
+			if node.expanded {
+				icon = "󰝰" // nf-md-folder [open]
+			} else {
+				icon = "󰉋" // nf-md-folder
+			}
 		} else if node.status == "??" {
 			colorStyle = untrackedStyle
 		} else if isStaged(node.status) {
@@ -176,13 +195,30 @@ func (m Model) View() string {
 			statusBlock = fmt.Sprintf(" [%s]", node.status)
 		}
 
+		shaBlock := ""
+		if node.sha != "" {
+			shaBlock = fmt.Sprintf(" (%s)", node.sha)
+		}
+
 		prefixPart := fmt.Sprintf("%s%s ", cursor, node.prefix)
-		contentPart := fmt.Sprintf("%s %s%s", icon, node.name, statusBlock)
 
 		if i == m.cursor {
+			contentPart := fmt.Sprintf("%s %s%s%s", icon, node.name, shaBlock, statusBlock)
 			view.WriteString(cursorStyle.Render(prefixPart+contentPart) + "\n")
 		} else {
-			view.WriteString(prefixPart + colorStyle.Render(contentPart) + "\n")
+			iconAndName := colorStyle.Render(fmt.Sprintf("%s %s", icon, node.name))
+
+			var shaPart string
+			if node.sha != "" {
+				shaPart = lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a")).Render(shaBlock)
+			}
+
+			var statusPart string
+			if node.status != "" {
+				statusPart = colorStyle.Render(statusBlock)
+			}
+
+			view.WriteString(prefixPart + iconAndName + shaPart + statusPart + "\n")
 		}
 	}
 
@@ -232,7 +268,7 @@ func toggleStaging(node treeNode) {
 }
 
 // build tree nodes repeatedly
-func buildTree(root string, prefix string, statuses map[string]string) []treeNode {
+func buildTree(root string, prefix string, statuses map[string]string, expanded map[string]bool, shaCache map[string]string) []treeNode {
 	var nodes []treeNode
 	entries, err := os.ReadDir(root)
 	if err != nil {
@@ -268,24 +304,45 @@ func buildTree(root string, prefix string, statuses map[string]string) []treeNod
 		relPath := filepath.Clean(fullPath)
 		gitPath := filepath.ToSlash(relPath)
 
+		var sha string
+		if !entry.IsDir() {
+			if cached, ok := shaCache[relPath]; ok {
+				sha = cached
+			} else {
+				sha = getFileCommitSHA(relPath)
+				shaCache[relPath] = sha
+			}
+		}
+
 		nodes = append(nodes, treeNode{
-			path:   relPath,
-			name:   entry.Name(),
-			isDir:  entry.IsDir(),
-			prefix: currPrefix,
-			status: statuses[gitPath],
+			path:     relPath,
+			name:     entry.Name(),
+			isDir:    entry.IsDir(),
+			prefix:   currPrefix,
+			status:   statuses[gitPath],
+			expanded: expanded[gitPath],
+			sha:      sha,
 		})
 
-		if entry.IsDir() {
+		if entry.IsDir() && expanded[gitPath] {
 			newPrefix := prefix
 			if isLast {
 				newPrefix += "   "
 			} else {
 				newPrefix += "│  "
 			}
-			nodes = append(nodes, buildTree(fullPath, newPrefix, statuses)...)
+			nodes = append(nodes, buildTree(fullPath, newPrefix, statuses, expanded, shaCache)...)
 		}
 	}
 
 	return nodes
+}
+
+func getFileCommitSHA(path string) string {
+	cmd := exec.Command("git", "log", "-1", "--format=%h", "--", path)
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
