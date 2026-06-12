@@ -9,7 +9,6 @@ import (
 	"gitty/internal/ui/commitflow"
 	"gitty/internal/ui/initflow"
 	"gitty/internal/ui/menu"
-	"gitty/internal/ui/nav"
 	"gitty/internal/ui/pushflow"
 	"gitty/internal/ui/treeflow"
 
@@ -40,7 +39,7 @@ type Model struct {
 	commitFlow commitflow.Model
 	treeFlow   treeflow.Model
 	pushFlow   pushflow.Model
-	nav        nav.Model
+	navFlow    treeflow.NoGitModel
 	about      about.Model
 	quitting   bool
 	width      int
@@ -78,7 +77,7 @@ func (m Model) Init() tea.Cmd {
 	case stateInitRepo:
 		return m.initFlow.Init()
 	case stateNav:
-		return m.nav.Init()
+		return m.navFlow.Init()
 	}
 	return nil
 }
@@ -94,13 +93,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = stateGit
 		m.gitMenu = menu.NewGit(m.width, m.height)
 		return m, nil
-	case nav.PickedMsg:
+	case treeflow.PickedMsg:
 		// change into the selected repo directory
 		_ = os.Chdir(msg.Path)
 		m.state = stateGit
 		m.gitMenu = menu.NewGit(m.width, m.height)
 		return m, nil
-	case nav.BackMsg, about.BackMsg, commitflow.BackMsg, treeflow.BackMsg, pushflow.BackMsg:
+	case about.BackMsg, commitflow.BackMsg, treeflow.BackMsg, pushflow.BackMsg:
 		m.state = m.prevState
 		return m, nil
 	case tea.KeyMsg:
@@ -136,8 +135,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.initFlow = updated.(initflow.Model)
 	case stateNav:
 		var updated tea.Model
-		updated, cmd = m.nav.Update(msg)
-		m.nav = updated.(nav.Model)
+		updated, cmd = m.navFlow.Update(msg)
+		m.navFlow = updated.(treeflow.NoGitModel)
 	case stateAbout:
 		var updated tea.Model
 		updated, cmd = m.about.Update(msg)
@@ -171,7 +170,7 @@ func (m Model) View() string {
 	case stateInitRepo:
 		return m.initFlow.View()
 	case stateNav:
-		return m.nav.View()
+		return m.navFlow.View()
 	case stateAbout:
 		return m.about.View()
 	case stateGit:
@@ -189,22 +188,23 @@ func (m Model) View() string {
 	return ""
 }
 
+// todo: switch to a id based system (this title system is shit)
 func (m Model) handleNoGitOption(msg menu.ChoiceMsg) (tea.Model, tea.Cmd) {
 	switch msg.Choice {
-	case "Initialize a Git Repository":
+	case "󰳏 Initialize a Git Repository":
 		m.state = stateInitRepo
 		m.initFlow = initflow.New(m.width, m.height)
 		return m, m.initFlow.Init()
-	case "Navigate to a Git Repository":
+	case "󱣱 Navigate to a Git Repository":
 		m.state = stateNav
-		m.nav = nav.New()
-		return m, m.nav.Init()
-	case "About gitty":
+		m.navFlow = treeflow.NewNoGit(m.width, m.height)
+		return m, m.navFlow.Init()
+	case "󰋼 About gitty":
 		m.prevState = stateNoGit
 		m.state = stateAbout
 		m.about = about.New()
 		return m, m.about.Init()
-	case "Quit":
+	case "󰈆 Quit":
 		m.quitting = true
 		return m, tea.Quit
 	}
@@ -214,12 +214,12 @@ func (m Model) handleNoGitOption(msg menu.ChoiceMsg) (tea.Model, tea.Cmd) {
 // handle selections from the git repo menu
 func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 	switch msg.Choice {
-	case "About gitty":
+	case "󰋼 About gitty":
 		m.prevState = stateGit
 		m.state = stateAbout
 		m.about = about.New()
 		return m, m.about.Init()
-	case "Commit":
+	case "󰜘 Commit":
 		hasChanges, hasPushes := git.CheckRepoStatus()
 		if !hasChanges {
 			m.prevState = stateGit
@@ -237,8 +237,8 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 		m.state = stateCommit
 		m.commitFlow = commitflow.New(m.width, m.height)
 		return m, m.commitFlow.Init()
-	case "Add Files", "Project Tree":
-		if msg.Choice == "Add Files" {
+	case "󰝒 Add Files", "󰙅 Project Tree":
+		if msg.Choice == "󰝒 Add Files" {
 			hasChanges, hasPushes := git.CheckRepoStatus()
 			if !hasChanges {
 				m.prevState = stateGit
@@ -255,9 +255,9 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 		}
 		m.prevState = stateGit
 		m.state = stateTree
-		m.treeFlow = treeflow.New(m.width, m.height, msg.Choice == "Add Files")
+		m.treeFlow = treeflow.New(m.width, m.height, msg.Choice == "󰝒 Add Files")
 		return m, m.treeFlow.Init()
-	case "Push Commits":
+	case " Push Commits":
 		hasChanges, hasPushes := git.CheckRepoStatus()
 		if !hasPushes {
 			m.prevState = stateGit
@@ -275,7 +275,7 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 		m.state = statePush
 		m.pushFlow = pushflow.New(m.width, m.height)
 		return m, m.pushFlow.Init()
-	case "Quit":
+	case "󰈆 Quit":
 		m.quitting = true
 		return m, tea.Quit
 	}
