@@ -6,18 +6,30 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// menu entry ids
+const (
+	IDInitRepo   = "init_repo"
+	IDNavigate   = "navigate"
+	IDAbout      = "about"
+	IDQuit       = "quit"
+	IDAddFiles   = "add_files"
+	IDCommit     = "commit"
+	IDPush       = "push"
+	IDTree       = "tree"
+	IDHistory    = "history"
+	IDOtherTools = "other_tools"
+)
+
 // lipgloss to style the ui
 var (
 	titleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#38bdf8")). // nord blue (we ALL *somewhat* love nord)
-			PaddingLeft(2)
-
-	itemStyle         = lipgloss.NewStyle().PaddingLeft(4).Foreground(lipgloss.Color("#94a3b8")) // nord gray
-	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("#e2e8f0")) // nord bright white
+		Bold(true).
+		Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+		PaddingLeft(2)
 )
 
 type item struct {
+	id    string
 	title string
 	desc  string
 }
@@ -26,8 +38,11 @@ func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.desc }
 func (i item) FilterValue() string { return i.title }
 
+// id accessor so model.go can read it
+func (i item) ID() string { return i.id }
+
 type ChoiceMsg struct {
-	Choice string
+	ID string
 }
 
 type NoGitModel struct {
@@ -40,13 +55,13 @@ type NoGitModel struct {
 // the no git menu (its useful)
 func NewNoGit() NoGitModel {
 	items := []list.Item{
-		item{title: "󰳏 Initialize a Git Repository", desc: "set up a new repo with the base files (README.md, LICENSE, .gitignore)"},
-		item{title: "󱣱 Navigate to a Git Repository", desc: "browse to an existing repo"},
-		item{title: "󰋼 About gitty", desc: "info about gitty"},
-		item{title: "󰈆 Quit", desc: "exit gitty :("},
+		item{id: IDInitRepo, title: "󰳏 Initialize a Git Repository", desc: "set up a new repo with the base files (readme.md, license, .gitignore)"},
+		item{id: IDNavigate, title: "󱣱 Navigate to a Git Repository", desc: "browse to an existing repo"},
+		item{id: IDAbout, title: "󰋼 About gitty", desc: "info about gitty"},
+		item{id: IDQuit, title: "󰈆 Quit", desc: "exit gitty :("},
 	}
 
-	l := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	l := list.New(items, nordListDelegate(), 0, 0)
 	l.Title = "gitty - v0.1.0 (unstable; not yet released)"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
@@ -77,9 +92,9 @@ func (m NoGitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			selected, ok := m.list.SelectedItem().(item)
 			if ok {
-				m.choice = selected.title
+				m.choice = selected.id
 				return m, func() tea.Msg {
-					return ChoiceMsg{Choice: selected.title}
+					return ChoiceMsg{ID: selected.id}
 				}
 			}
 		}

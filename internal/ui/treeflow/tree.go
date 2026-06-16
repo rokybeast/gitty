@@ -19,7 +19,7 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#a78bfa")).
+			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
 			PaddingLeft(4)
 
 	stagedStyle = lipgloss.NewStyle().

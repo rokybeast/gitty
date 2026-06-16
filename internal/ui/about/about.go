@@ -10,15 +10,15 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#c4b5fd")).
+			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
 			MarginBottom(1)
 
 	bodyStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#94a3b8")).
+			Foreground(lipgloss.Color("#d8dee9")). // nord snow
 			PaddingLeft(2)
 
 	hintStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#64748b")).
+			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
 			PaddingLeft(2).
 			MarginTop(1)
 )
@@ -46,11 +46,11 @@ func (m Model) View() string {
 	title := titleStyle.Render("about gitty")
 	body := bodyStyle.Render(
 		"gitty is a feature-rich, aesthetically good looking and mainly, a minimal TUI tool.\n" +
-			"Built with Golang, and with 󰋑 for  \n\n" +
-			"Version: 0.1.0 Alpha\n" + // yes, static version for now..
-			"GitHub Repository (Want to contribute?): github.com/rokybeast/gitty",
+			"built with golang, and with 󰋑 for  \n\n" +
+			"version: 0.1.0 alpha\n" + // yes, static version for now..
+			"github repository (want to contribute?): github.com/rokybeast/gitty",
 	)
-	hint := hintStyle.Render("Press Esc to Go Back")
+	hint := hintStyle.Render("press esc to go back")
 
 	return lipgloss.JoinVertical(lipgloss.Left, title, body, hint)
 }

@@ -17,12 +17,12 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#c4b5fd")).
+			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
 			PaddingLeft(2).
 			MarginBottom(1)
 
 	errStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#f87171")).
+			Foreground(lipgloss.Color("#bf616a")). // nord red
 			PaddingLeft(2)
 )
 
@@ -37,6 +37,13 @@ func New() Model {
 	fp.DirAllowed = true
 	fp.FileAllowed = false
 	fp.ShowHidden = true
+
+	// customize filepicker with nord colors
+	fp.Styles.Cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0"))
+	fp.Styles.Directory = lipgloss.NewStyle().Foreground(lipgloss.Color("#81a1c1")).Bold(true)
+	fp.Styles.File = lipgloss.NewStyle().Foreground(lipgloss.Color("#eceff4"))
+	fp.Styles.Selected = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0")).Bold(true)
+	fp.Styles.DisabledFile = lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a"))
 
 	return Model{picker: fp}
 }
@@ -65,14 +72,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.err = ""
 			return m, func() tea.Msg { return PickedMsg{Path: path} }
 		}
-		m.err = "This is not a Git repository: " + path
+		m.err = "this is not a git repository: " + path
 	}
 
 	return m, cmd
 }
 
 func (m Model) View() string {
-	title := titleStyle.Render("navigate to a Git repository")
+	title := titleStyle.Render("navigate to a git repository")
 	view := m.picker.View()
 
 	if m.err != "" {

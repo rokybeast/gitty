@@ -63,6 +63,23 @@ var (
 				MarginBottom(1)
 )
 
+// nord-themed list delegate
+func nordListDelegate() list.DefaultDelegate {
+	d := list.NewDefaultDelegate()
+	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lipgloss.Color("#eceff4"))
+	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
+		Foreground(lipgloss.Color("#88c0d0")).
+		BorderLeftForeground(lipgloss.Color("#88c0d0"))
+	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
+		Foreground(lipgloss.Color("#81a1c1")).
+		BorderLeftForeground(lipgloss.Color("#88c0d0"))
+	d.Styles.DimmedTitle = d.Styles.DimmedTitle.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.DimmedDesc = d.Styles.DimmedDesc.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.FilterMatch = d.Styles.FilterMatch.Foreground(lipgloss.Color("#a3be8c"))
+	return d
+}
+
 // list item for commit types
 type commitItem struct {
 	title string
@@ -97,10 +114,10 @@ func New(width, height int) Model {
 		commitItem{title: "docs", desc: "documentation - any update to docfiles, such as mdfiles, its a documentation update"},
 		commitItem{title: "chore", desc: "chore - if its a task that is boring, then it is a chore (you hate it)"},
 		commitItem{title: "pkg", desc: "package - which means to update/download/remove packages from lockfiles/config files"},
-		commitItem{title: "Custom Commit Message", desc: "its your commit, spread your abstractness :D"},
+		commitItem{title: "custom commit message", desc: "its your commit, spread your abstractness :D"},
 	}
 
-	l := list.New(items, list.NewDefaultDelegate(), width, height)
+	l := list.New(items, nordListDelegate(), width, height)
 	l.Title = "choose a commit type"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
@@ -181,7 +198,7 @@ func (m Model) updateChooseType(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		if selected.title == "Custom Commit Message" {
+		if selected.title == "custom commit message" {
 			// go to custom prefix input
 			m.step = stepCustomPrefix
 			m.input = newTextInput("your custom prefix...")
@@ -301,11 +318,11 @@ func (m Model) View() string {
 	case stepChooseType:
 		return m.list.View()
 	case stepCustomPrefix:
-		return m.viewTextInput("Write your custom prefix", "> e.g., 'hotfix', 'wip', or whatever you want")
+		return m.viewTextInput("write your custom prefix", "> e.g., 'hotfix', 'wip', or whatever you want")
 	case stepScope:
-		return m.viewTextInput("Write a Scope", "> a scope is a way to tell that you have changed a certain part of the code")
+		return m.viewTextInput("write a scope", "> a scope is a way to tell that you have changed a certain part of the code")
 	case stepMessage:
-		return m.viewTextInput("Write the Commit Message", "> make sure it's small, and understandable")
+		return m.viewTextInput("write the commit message", "> make sure it's small, and understandable")
 	case stepDone:
 		return m.viewDone()
 	}

@@ -22,7 +22,7 @@ var (
 			Bold(true)
 
 	errStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#f87171")).
+			Foreground(lipgloss.Color("#bf616a")). // nord red
 			PaddingLeft(4)
 )
 
@@ -105,7 +105,7 @@ func (m NoGitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if node.isGit {
 					return m, func() tea.Msg { return PickedMsg{Path: node.path} }
 				} else {
-					m.err = "This is not a Git repository: " + node.path
+					m.err = "this is not a git repository: " + node.path
 				}
 			}
 		case " ", "enter":

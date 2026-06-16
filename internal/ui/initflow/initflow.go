@@ -3,9 +3,32 @@ package initflow
 import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"gitty/internal/git"
 )
+
+var titleStyle = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+	PaddingLeft(2)
+
+// nord-themed list delegate
+func nordListDelegate() list.DefaultDelegate {
+	d := list.NewDefaultDelegate()
+	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lipgloss.Color("#eceff4"))
+	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
+		Foreground(lipgloss.Color("#88c0d0")).
+		BorderLeftForeground(lipgloss.Color("#88c0d0"))
+	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
+		Foreground(lipgloss.Color("#81a1c1")).
+		BorderLeftForeground(lipgloss.Color("#88c0d0"))
+	d.Styles.DimmedTitle = d.Styles.DimmedTitle.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.DimmedDesc = d.Styles.DimmedDesc.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.FilterMatch = d.Styles.FilterMatch.Foreground(lipgloss.Color("#a3be8c"))
+	return d
+}
 
 type step int
 
@@ -84,7 +107,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	if m.step == stepDone {
-		return "Initializing a Git Repository...\n"
+		return "initializing a git repository...\n"
 	}
 	return m.list.View()
 }
@@ -95,10 +118,11 @@ func (m Model) loadGitIgnoreList() Model {
 	for i, t := range git.GitIgnores {
 		items[i] = item{template: t}
 	}
-	l := list.New(items, list.NewDefaultDelegate(), m.width, m.height)
-	l.Title = "Choose a .gitignore template"
+	l := list.New(items, nordListDelegate(), m.width, m.height)
+	l.Title = "choose a .gitignore template"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
+	l.Styles.Title = titleStyle
 	m.list = l
 	return m
 }
@@ -109,10 +133,11 @@ func (m Model) loadLicenseList() Model {
 	for i, t := range git.Licenses {
 		items[i] = item{template: t}
 	}
-	l := list.New(items, list.NewDefaultDelegate(), m.width, m.height)
-	l.Title = "Choose a License (gitty does not warn you about the legality of Licenses, for that, contact Saul Goodman!)"
+	l := list.New(items, nordListDelegate(), m.width, m.height)
+	l.Title = "choose a license (gitty does not warn you about the legality of licenses, for that, contact saul goodman!)"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
+	l.Styles.Title = titleStyle
 	m.list = l
 	return m
 }

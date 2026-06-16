@@ -67,7 +67,7 @@ var (
 	hashStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color("#81A1C1"))
 	msgStyle           = lipgloss.NewStyle().Foreground(lipgloss.Color("#eceff4"))
 	cursorStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("#88C0D0")).Bold(true)
-	titleStyle         = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#a78bfa")).PaddingLeft(4)
+	titleStyle         = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#88c0d0")).PaddingLeft(4)
 
 	pushSuccessStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#A3BE8C")). // nord green
@@ -285,9 +285,9 @@ func (m Model) View() string {
 			}
 			statusText := ""
 			if r.upToDate {
-				statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Render("[Up To Date]")
+				statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Render("[up to date]")
 			} else {
-				statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#BF616A")).Render("[Not Up To Date]")
+				statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#BF616A")).Render("[not up to date]")
 			}
 			urlStyle := lipgloss.NewStyle().Faint(true)
 			remoteNameStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#eceff4"))
@@ -580,7 +580,7 @@ func (m Model) viewDone() string {
 	if !hasChanges && !hasPushes {
 		messageStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#81a1c1")).Bold(true)
 		messageHintStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a"))
-		msg := messageStyle.Render(fmt.Sprintf("󰳏 %s/%s is clean and nothing is Left, done for the day? (I hope not)", repoName, branch))
+		msg := messageStyle.Render(fmt.Sprintf("󰳏 %s/%s is clean and nothing is left, are you done for the day? hope not ;)", repoName, branch))
 		hint := messageHintStyle.Render("press esc/enter/q to go back")
 		fullText := lipgloss.JoinVertical(lipgloss.Center, msg, "", hint)
 		return lipgloss.NewStyle().
