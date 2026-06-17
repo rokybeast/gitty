@@ -7,6 +7,7 @@ import (
 	"gitty/internal/git"
 	"gitty/internal/ui/about"
 	"gitty/internal/ui/commitflow"
+	"gitty/internal/ui/historyflow"
 	"gitty/internal/ui/initflow"
 	"gitty/internal/ui/menu"
 	"gitty/internal/ui/pushflow"
@@ -28,6 +29,7 @@ const (
 	stateTree
 	stateMessage
 	statePush
+	stateHistory
 )
 
 type Model struct {
@@ -37,10 +39,11 @@ type Model struct {
 	gitMenu    menu.GitModel
 	initFlow   initflow.Model
 	commitFlow commitflow.Model
-	treeFlow   treeflow.Model
-	pushFlow   pushflow.Model
-	navFlow    treeflow.NoGitModel
-	about      about.Model
+	treeFlow    treeflow.Model
+	pushFlow    pushflow.Model
+	navFlow     treeflow.NoGitModel
+	historyFlow historyflow.Model
+	about       about.Model
 	quitting   bool
 	width      int
 	height     int
@@ -99,7 +102,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = stateGit
 		m.gitMenu = menu.NewGit(m.width, m.height)
 		return m, nil
-	case about.BackMsg, commitflow.BackMsg, treeflow.BackMsg, pushflow.BackMsg:
+	case about.BackMsg, commitflow.BackMsg, treeflow.BackMsg, pushflow.BackMsg, historyflow.BackMsg:
 		m.state = m.prevState
 		return m, nil
 	case tea.KeyMsg:
@@ -153,6 +156,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var updated tea.Model
 		updated, cmd = m.pushFlow.Update(msg)
 		m.pushFlow = updated.(pushflow.Model)
+	case stateHistory:
+		var updated tea.Model
+		updated, cmd = m.historyFlow.Update(msg)
+		m.historyFlow = updated.(historyflow.Model)
 	}
 
 	return m, cmd
@@ -181,6 +188,8 @@ func (m Model) View() string {
 		return m.treeFlow.View()
 	case statePush:
 		return m.pushFlow.View()
+	case stateHistory:
+		return m.historyFlow.View()
 	case stateMessage:
 		return m.viewMessage()
 	}
@@ -275,6 +284,11 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 		m.state = statePush
 		m.pushFlow = pushflow.New(m.width, m.height)
 		return m, m.pushFlow.Init()
+	case menu.IDHistory:
+		m.prevState = stateGit
+		m.state = stateHistory
+		m.historyFlow = historyflow.New(m.width, m.height)
+		return m, m.historyFlow.Init()
 	case menu.IDQuit:
 		m.quitting = true
 		return m, tea.Quit

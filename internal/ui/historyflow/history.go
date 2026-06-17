@@ -1,0 +1,227 @@
+package historyflow
+
+import (
+	"fmt"
+	"strings"
+
+	"gitty/internal/git"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+)
+
+type BackMsg struct{}
+
+var (
+	titleStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			PaddingLeft(2)
+
+	nodeStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Bold(true)
+
+	graphLineStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#4c566a")) // nord muted gray
+
+	msgStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#eceff4")) // nord snow
+
+	hashStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#81a1c1")) // nord frost
+
+	cursorStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Bold(true)
+
+	hintStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
+			PaddingLeft(2)
+
+	headerBranchStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#a3be8c")). // nord green
+				Bold(true)
+)
+
+type Model struct {
+	rows   []git.GraphRow
+	cursor int // Cursor index into rows (not just commits, since routes are rows too)
+	width  int
+	height int
+	sha    string
+}
+
+func New(width, height int) Model {
+	rows, _ := git.BuildGraph()
+	sha := git.LatestShortSHA()
+
+	m := Model{
+		rows:   rows,
+		cursor: 0,
+		width:  width,
+		height: height,
+		sha:    sha,
+	}
+
+	for m.cursor < len(m.rows)-1 && m.rows[m.cursor].IsRoute {
+		m.cursor++
+	}
+
+	return m
+}
+
+func (m Model) Init() tea.Cmd {
+	return nil
+}
+
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c":
+			return m, tea.Quit
+		case "esc", "q":
+			return m, func() tea.Msg { return BackMsg{} }
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+				// we skip routing rows only *if possible
+				for m.cursor > 0 && m.rows[m.cursor].IsRoute {
+					m.cursor--
+				}
+			}
+		case "down", "j":
+			if m.cursor < len(m.rows)-1 {
+				m.cursor++
+				// again, skip routing rows if possible, i LOVE skipping ts
+				for m.cursor < len(m.rows)-1 && m.rows[m.cursor].IsRoute {
+					m.cursor++
+				}
+			}
+		case "g":
+			m.cursor = 0
+			for m.cursor < len(m.rows)-1 && m.rows[m.cursor].IsRoute {
+				m.cursor++
+			}
+		case "G":
+			m.cursor = len(m.rows) - 1
+			for m.cursor > 0 && m.rows[m.cursor].IsRoute {
+				m.cursor--
+			}
+		}
+	}
+	return m, nil
+}
+
+func (m Model) View() string {
+	var view strings.Builder
+
+	repoName := git.RepoName()
+	branch := git.CurrentBranch()
+	title := titleStyle.Render(fmt.Sprintf("commit graph (%s) (j/k to scroll up/down, enter for details [wip])", m.sha))
+	view.WriteString("\n" + title + "\n\n")
+
+	header := fmt.Sprintf("  %s  %s",
+		nodeStyle.Render("󰘬"), // nf-md-source_branch
+		headerBranchStyle.Render(fmt.Sprintf("%s/%s", repoName, branch)),
+	)
+	view.WriteString(header + "\n")
+	view.WriteString(graphLineStyle.Render("  │") + "\n")
+
+	if len(m.rows) == 0 {
+		view.WriteString(hintStyle.Render("  no commits found.") + "\n")
+		view.WriteString("\n" + hintStyle.Render("press esc/q to go back"))
+		return view.String()
+	}
+
+	maxVisible := m.height - 7
+	if maxVisible < 1 {
+		maxVisible = 1
+	}
+
+	start := m.cursor - maxVisible/2
+	if start < 0 {
+		start = 0
+	}
+	end := start + maxVisible
+	if end > len(m.rows) {
+		end = len(m.rows)
+		start = end - maxVisible
+		if start < 0 {
+			start = 0
+		}
+	}
+
+	for i := start; i < end; i++ {
+		row := m.rows[i]
+		rendered := renderRow(row, i == m.cursor)
+		view.WriteString(rendered + "\n")
+	}
+
+	if len(m.rows) > maxVisible {
+		pos := fmt.Sprintf(" [%d/%d]", m.cursor+1, len(m.rows))
+		view.WriteString("\n" + hintStyle.Render("esc/q: back | g/G: top/bottom"+pos))
+	} else {
+		view.WriteString("\n" + hintStyle.Render("esc/q: back"))
+	}
+
+	return view.String()
+}
+
+func renderRow(row git.GraphRow, selected bool) string {
+	styledGraph := styleGraphChars(row.Prefix)
+
+	if !row.IsRoute {
+		node := nodeStyle.Render("") // nf-md-circle_small
+		styledGraph = strings.Replace(styledGraph, "*", node, 1)
+	}
+
+	var styledText string
+	if !row.IsRoute {
+		var msgStr, hashStr string
+		if selected {
+			hashStr = cursorStyle.Render(fmt.Sprintf("[%s]", row.Commit.Hash[:7]))
+			msgStr = cursorStyle.Render(row.Commit.Message)
+		} else {
+			hashStr = hashStyle.Render(fmt.Sprintf("[%s]", row.Commit.Hash[:7]))
+			msgStr = msgStyle.Render(row.Commit.Message)
+		}
+		styledText = fmt.Sprintf("%s %s", msgStr, hashStr)
+	}
+
+	full := styledGraph + styledText
+
+	if selected && !row.IsRoute {
+		prefix := cursorStyle.Render("> ")
+		return prefix + full
+	}
+	return "  " + full
+}
+
+// apply nord colors to graph characters
+func styleGraphChars(s string) string {
+	var result strings.Builder
+	runes := []rune(s)
+
+	for i := 0; i < len(runes); i++ {
+		ch := runes[i]
+		switch ch {
+		case '│', '├', '─', '╮', '╯', '╰', '╭', '┼':
+			result.WriteString(graphLineStyle.Render(string(ch)))
+		case '*':
+			result.WriteRune('*') // keep * for replacement later
+		case ' ':
+			result.WriteRune(' ')
+		default:
+			result.WriteString(graphLineStyle.Render(string(ch)))
+		}
+	}
+
+	return result.String()
+}
