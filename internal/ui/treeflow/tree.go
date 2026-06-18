@@ -200,7 +200,7 @@ func (m Model) View() string {
 			shaBlock = fmt.Sprintf(" (%s)", node.sha)
 		}
 
-		prefixPart := fmt.Sprintf("%s%s ", cursor, node.prefix)
+		prefixPart := fmt.Sprintf("%s%s", cursor, node.prefix)
 
 		if i == m.cursor {
 			contentPart := fmt.Sprintf("%s %s%s%s", icon, node.name, shaBlock, statusBlock)
