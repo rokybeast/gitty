@@ -30,6 +30,7 @@ const (
 	stateMessage
 	statePush
 	stateHistory
+	stateAddFiles
 )
 
 type Model struct {
@@ -39,11 +40,12 @@ type Model struct {
 	gitMenu    menu.GitModel
 	initFlow   initflow.Model
 	commitFlow commitflow.Model
-	treeFlow    treeflow.Model
-	pushFlow    pushflow.Model
-	navFlow     treeflow.NoGitModel
-	historyFlow historyflow.Model
-	about       about.Model
+	treeFlow     treeflow.Model
+	pushFlow     pushflow.Model
+	navFlow      treeflow.NoGitModel
+	historyFlow  historyflow.Model
+	addFilesFlow treeflow.AddFilesModel
+	about        about.Model
 	quitting   bool
 	width      int
 	height     int
@@ -160,6 +162,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var updated tea.Model
 		updated, cmd = m.historyFlow.Update(msg)
 		m.historyFlow = updated.(historyflow.Model)
+	case stateAddFiles:
+		var updated tea.Model
+		updated, cmd = m.addFilesFlow.Update(msg)
+		m.addFilesFlow = updated.(treeflow.AddFilesModel)
 	}
 
 	return m, cmd
@@ -190,6 +196,8 @@ func (m Model) View() string {
 		return m.pushFlow.View()
 	case stateHistory:
 		return m.historyFlow.View()
+	case stateAddFiles:
+		return m.addFilesFlow.View()
 	case stateMessage:
 		return m.viewMessage()
 	}
@@ -242,29 +250,41 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+		// there are changes but nothing staged yet
+		if !git.HasStagedFiles() {
+			m.prevState = stateGit
+			m.state = stateMessage
+			repo := git.RepoName()
+			branch := git.CurrentBranch()
+			m.message = fmt.Sprintf("󰳏 %s/%s has no files added yet, add them, and come here >:(", repo, branch)
+			return m, nil
+		}
 		m.prevState = stateGit
 		m.state = stateCommit
 		m.commitFlow = commitflow.New(m.width, m.height)
 		return m, m.commitFlow.Init()
-	case menu.IDAddFiles, menu.IDTree:
-		if msg.ID == menu.IDAddFiles {
-			hasChanges, hasPushes := git.CheckRepoStatus()
-			if !hasChanges {
-				m.prevState = stateGit
-				m.state = stateMessage
-				repo := git.RepoName()
-				branch := git.CurrentBranch()
-				if hasPushes {
-					m.message = fmt.Sprintf("󰳏 %s/%s is clean, now, just push 'em! great job completing it! i think..", repo, branch)
-				} else {
-					m.message = fmt.Sprintf("󰳏 %s/%s is clean and nothing is left, are you done for the day? hope not ;)", repo, branch)
-				}
-				return m, nil
+	case menu.IDAddFiles:
+		hasChanges, hasPushes := git.CheckRepoStatus()
+		if !hasChanges {
+			m.prevState = stateGit
+			m.state = stateMessage
+			repo := git.RepoName()
+			branch := git.CurrentBranch()
+			if hasPushes {
+				m.message = fmt.Sprintf("󰳏 %s/%s is clean, now, just push 'em! great job completing it! i think..", repo, branch)
+			} else {
+				m.message = fmt.Sprintf("󰳏 %s/%s is clean and nothing is left, are you done for the day? hope not ;)", repo, branch)
 			}
+			return m, nil
 		}
 		m.prevState = stateGit
+		m.state = stateAddFiles
+		m.addFilesFlow = treeflow.NewAddFiles(m.width, m.height)
+		return m, m.addFilesFlow.Init()
+	case menu.IDTree:
+		m.prevState = stateGit
 		m.state = stateTree
-		m.treeFlow = treeflow.New(m.width, m.height, msg.ID == menu.IDAddFiles)
+		m.treeFlow = treeflow.New(m.width, m.height, false)
 		return m, m.treeFlow.Init()
 	case menu.IDPush:
 		hasChanges, hasPushes := git.CheckRepoStatus()
