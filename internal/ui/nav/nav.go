@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"gitty/internal/git"
+	"gitty/internal/ui/common"
 )
 
 type PickedMsg struct {
@@ -17,12 +18,12 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Foreground(common.ColorFrostBlue). // nord frost blue
 			PaddingLeft(2).
 			MarginBottom(1)
 
 	errStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#bf616a")). // nord red
+			Foreground(common.ColorRed). // nord red
 			PaddingLeft(2)
 )
 
@@ -39,11 +40,11 @@ func New() Model {
 	fp.ShowHidden = true
 
 	// customize filepicker with nord colors
-	fp.Styles.Cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0"))
-	fp.Styles.Directory = lipgloss.NewStyle().Foreground(lipgloss.Color("#81a1c1")).Bold(true)
-	fp.Styles.File = lipgloss.NewStyle().Foreground(lipgloss.Color("#eceff4"))
-	fp.Styles.Selected = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0")).Bold(true)
-	fp.Styles.DisabledFile = lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a"))
+	fp.Styles.Cursor = lipgloss.NewStyle().Foreground(common.ColorFrostBlue)
+	fp.Styles.Directory = lipgloss.NewStyle().Foreground(common.ColorFrostLightBlue).Bold(true)
+	fp.Styles.File = lipgloss.NewStyle().Foreground(common.ColorSnow)
+	fp.Styles.Selected = lipgloss.NewStyle().Foreground(common.ColorFrostBlue).Bold(true)
+	fp.Styles.DisabledFile = lipgloss.NewStyle().Foreground(common.ColorMutedGray)
 
 	return Model{picker: fp}
 }

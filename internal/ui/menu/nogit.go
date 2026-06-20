@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"gitty/internal/ui/common"
 )
 
 // menu entry ids
@@ -24,7 +25,7 @@ const (
 var (
 	titleStyle = lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+		Foreground(common.ColorFrostBlue). // nord frost blue
 		PaddingLeft(2)
 )
 

@@ -6,27 +6,28 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"gitty/internal/git"
+	"gitty/internal/ui/common"
 )
 
 var titleStyle = lipgloss.NewStyle().
 	Bold(true).
-	Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+	Foreground(common.ColorFrostBlue). // nord frost blue
 	PaddingLeft(2)
 
 // nord-themed list delegate
 func nordListDelegate() list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
-	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lipgloss.Color("#eceff4"))
-	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(common.ColorSnow)
+	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(common.ColorMutedGray)
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
-		Foreground(lipgloss.Color("#88c0d0")).
-		BorderLeftForeground(lipgloss.Color("#88c0d0"))
+		Foreground(common.ColorFrostBlue).
+		BorderLeftForeground(common.ColorFrostBlue)
 	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
-		Foreground(lipgloss.Color("#81a1c1")).
-		BorderLeftForeground(lipgloss.Color("#88c0d0"))
-	d.Styles.DimmedTitle = d.Styles.DimmedTitle.Foreground(lipgloss.Color("#4c566a"))
-	d.Styles.DimmedDesc = d.Styles.DimmedDesc.Foreground(lipgloss.Color("#4c566a"))
-	d.Styles.FilterMatch = d.Styles.FilterMatch.Foreground(lipgloss.Color("#a3be8c"))
+		Foreground(common.ColorFrostLightBlue).
+		BorderLeftForeground(common.ColorFrostBlue)
+	d.Styles.DimmedTitle = d.Styles.DimmedTitle.Foreground(common.ColorMutedGray)
+	d.Styles.DimmedDesc = d.Styles.DimmedDesc.Foreground(common.ColorMutedGray)
+	d.Styles.FilterMatch = d.Styles.FilterMatch.Foreground(common.ColorGreen)
 	return d
 }
 

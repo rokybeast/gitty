@@ -16,32 +16,32 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Foreground(common.ColorFrostBlue). // nord frost blue
 			PaddingLeft(2)
 
 	nodeStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Foreground(common.ColorFrostBlue). // nord frost blue
 			Bold(true)
 
 	graphLineStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")) // nord muted gray
+			Foreground(common.ColorMutedGray) // nord muted gray
 
 	msgStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#eceff4")) // nord snow
+			Foreground(common.ColorSnow) // nord snow
 
 	hashStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#81a1c1")) // nord frost
+			Foreground(common.ColorFrostLightBlue) // nord frost
 
 	cursorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Foreground(common.ColorFrostBlue). // nord frost blue
 			Bold(true)
 
 	hintStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
+			Foreground(common.ColorMutedGray). // nord muted gray
 			PaddingLeft(2)
 
 	headerBranchStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#a3be8c")). // nord green
+				Foreground(common.ColorGreen). // nord green
 				Bold(true)
 )
 
@@ -162,7 +162,7 @@ func (m Model) View() string {
 
 	if len(m.rows) == 0 {
 		view.WriteString(hintStyle.Render("  no commits found.") + "\n")
-		
+
 		shortcuts := []common.Shortcut{
 			{Key: "esc/q", Desc: "back"},
 		}

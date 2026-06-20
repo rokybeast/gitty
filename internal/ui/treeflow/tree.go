@@ -20,28 +20,28 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Foreground(common.ColorFrostBlue). // nord frost blue
 			PaddingLeft(4)
 
 	stagedStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#a3be8c")) // nord green
+			Foreground(common.ColorGreen) // nord green
 
 	unstagedStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#bf616a")) // nord red
+			Foreground(common.ColorRed) // nord red
 
 	untrackedStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")) // nord muted gray
+			Foreground(common.ColorMutedGray) // nord muted gray
 
 	dirStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#81a1c1")). // nord frost
+			Foreground(common.ColorFrostLightBlue). // nord frost
 			Bold(true)
 
 	cursorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#88c0d0")). // nord lighter blue
+			Foreground(common.ColorFrostBlue). // nord lighter blue
 			Bold(true)
 
 	defaultStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#eceff4")) // nord snow
+			Foreground(common.ColorSnow) // nord snow
 )
 
 type treeNode struct {
@@ -211,7 +211,7 @@ func (m Model) View() string {
 
 			var shaPart string
 			if node.sha != "" {
-				shaPart = lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a")).Render(shaBlock)
+				shaPart = lipgloss.NewStyle().Foreground(common.ColorMutedGray).Render(shaBlock)
 			}
 
 			var statusPart string

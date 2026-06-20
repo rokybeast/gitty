@@ -32,25 +32,25 @@ type BackMsg struct{}
 var (
 	commitTitleStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+				Foreground(common.ColorFrostBlue). // nord frost blue
 				PaddingLeft(2)
 
 	commitHintStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
+			Foreground(common.ColorMutedGray). // nord muted gray
 			PaddingLeft(2).
 			MarginTop(1)
 
 	commitSuccessStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#a3be8c")). // nord green
+				Foreground(common.ColorGreen). // nord green
 				Bold(true).
 				PaddingLeft(2)
 
 	commitDetailStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#d8dee9")). // nord snow
+				Foreground(common.ColorSnowDark). // nord snow
 				PaddingLeft(2)
 
 	commitErrorStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#bf616a")). // nord red
+				Foreground(common.ColorRed). // nord red
 				Bold(true).
 				PaddingLeft(2)
 
@@ -58,7 +58,7 @@ var (
 			Italic(true)
 
 	commitInputLabelStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#81a1c1")). // nord frost
+				Foreground(common.ColorFrostLightBlue). // nord frost
 				Bold(true).
 				PaddingLeft(2).
 				MarginBottom(1)
@@ -67,17 +67,17 @@ var (
 // nord-themed list delegate
 func nordListDelegate() list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
-	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lipgloss.Color("#eceff4"))
-	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(lipgloss.Color("#4c566a"))
+	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(common.ColorSnow)
+	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(common.ColorMutedGray)
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
-		Foreground(lipgloss.Color("#88c0d0")).
-		BorderLeftForeground(lipgloss.Color("#88c0d0"))
+		Foreground(common.ColorFrostBlue).
+		BorderLeftForeground(common.ColorFrostBlue)
 	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
-		Foreground(lipgloss.Color("#81a1c1")).
-		BorderLeftForeground(lipgloss.Color("#88c0d0"))
-	d.Styles.DimmedTitle = d.Styles.DimmedTitle.Foreground(lipgloss.Color("#4c566a"))
-	d.Styles.DimmedDesc = d.Styles.DimmedDesc.Foreground(lipgloss.Color("#4c566a"))
-	d.Styles.FilterMatch = d.Styles.FilterMatch.Foreground(lipgloss.Color("#a3be8c"))
+		Foreground(common.ColorFrostLightBlue).
+		BorderLeftForeground(common.ColorFrostBlue)
+	d.Styles.DimmedTitle = d.Styles.DimmedTitle.Foreground(common.ColorMutedGray)
+	d.Styles.DimmedDesc = d.Styles.DimmedDesc.Foreground(common.ColorMutedGray)
+	d.Styles.FilterMatch = d.Styles.FilterMatch.Foreground(common.ColorGreen)
 	return d
 }
 
@@ -358,12 +358,12 @@ func (m Model) viewDone() string {
 	if m.commitErr != "" {
 		errMsg := commitErrorStyle.Render("commit failed!")
 		detail := commitDetailStyle.Render(m.commitErr)
-		
+
 		shortcuts := []common.Shortcut{
 			{Key: "esc", Desc: "back"},
 		}
 		footer := "\n  " + common.RenderShortcuts(shortcuts)
-		
+
 		return lipgloss.JoinVertical(lipgloss.Left, "", errMsg, "", detail, "", footer)
 	}
 
@@ -398,9 +398,9 @@ func newTextInput(placeholder string) textinput.Model {
 	ti.Placeholder = placeholder
 	ti.CharLimit = 120
 	ti.Width = 50
-	ti.PromptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0"))
-	ti.TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#eceff4"))
-	ti.PlaceholderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#4c566a"))
-	ti.Cursor.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0"))
+	ti.PromptStyle = lipgloss.NewStyle().Foreground(common.ColorFrostBlue)
+	ti.TextStyle = lipgloss.NewStyle().Foreground(common.ColorSnow)
+	ti.PlaceholderStyle = lipgloss.NewStyle().Foreground(common.ColorMutedGray)
+	ti.Cursor.Style = lipgloss.NewStyle().Foreground(common.ColorFrostBlue)
 	return ti
 }

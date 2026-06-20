@@ -15,6 +15,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"gitty/internal/ui/common"
 )
 
 type state int
@@ -34,22 +35,22 @@ const (
 )
 
 type Model struct {
-	state      state
-	prevState  state // where to go back to from about/sub-screens
-	noGit      menu.NoGitModel
-	gitMenu    menu.GitModel
-	initFlow   initflow.Model
-	commitFlow commitflow.Model
+	state        state
+	prevState    state // where to go back to from about/sub-screens
+	noGit        menu.NoGitModel
+	gitMenu      menu.GitModel
+	initFlow     initflow.Model
+	commitFlow   commitflow.Model
 	treeFlow     treeflow.Model
 	pushFlow     pushflow.Model
 	navFlow      treeflow.NoGitModel
 	historyFlow  historyflow.Model
 	addFilesFlow treeflow.AddFilesModel
 	about        about.Model
-	quitting   bool
-	width      int
-	height     int
-	message    string
+	quitting     bool
+	width        int
+	height       int
+	message      string
 }
 
 // make a new fresh model and detect the git repo to pick the first state
@@ -318,11 +319,11 @@ func (m Model) handleGitOption(msg menu.GitChoiceMsg) (tea.Model, tea.Cmd) {
 
 var (
 	messageStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#81a1c1")). // nord frost blue
+			Foreground(common.ColorFrostLightBlue). // nord frost blue
 			Bold(true)
 
 	messageHintStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#4c566a")) // nord muted gray
+				Foreground(common.ColorMutedGray) // nord muted gray
 )
 
 func (m Model) viewMessage() string {

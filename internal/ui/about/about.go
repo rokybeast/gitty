@@ -12,15 +12,15 @@ type BackMsg struct{}
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#88c0d0")). // nord frost blue
+			Foreground(common.ColorFrostBlue). // nord frost blue
 			MarginBottom(1)
 
 	bodyStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#d8dee9")). // nord snow
+			Foreground(common.ColorSnowDark). // nord snow
 			PaddingLeft(2)
 
 	hintStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
+			Foreground(common.ColorMutedGray). // nord muted gray
 			PaddingLeft(2).
 			MarginTop(1)
 )

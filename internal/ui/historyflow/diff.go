@@ -40,42 +40,42 @@ const (
 var (
 	diffTitleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#88c0d0")).
+			Foreground(common.ColorFrostBlue).
 			PaddingLeft(1)
 
 	diffFileStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#88c0d0")).
+			Foreground(common.ColorFrostBlue).
 			Bold(true)
 
 	diffDividerStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#3b4252"))
+				Foreground(common.ColorBgDiffLine)
 
 	diffBodyStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#d8dee9"))
+			Foreground(common.ColorSnowDark)
 
 	diffAddLineStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#a3be8c")).
-				Background(lipgloss.Color("#2e3b32"))
+				Foreground(common.ColorGreen).
+				Background(common.ColorBgDiffAdd)
 
 	diffDelLineStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#bf616a")).
-				Background(lipgloss.Color("#3b2e2e"))
+				Foreground(common.ColorRed).
+				Background(common.ColorBgDiffDelete)
 
 	diffHintStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")).
+			Foreground(common.ColorMutedGray).
 			PaddingLeft(1)
 
 	diffMutedStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a"))
+			Foreground(common.ColorMutedGray)
 
 	diffTreeAddStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#a3be8c"))
+				Foreground(common.ColorGreen)
 
 	diffTreeDelStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#bf616a"))
+				Foreground(common.ColorRed)
 
 	diffTreeGlyphStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#4c566a"))
+				Foreground(common.ColorMutedGray)
 )
 
 // a single file entry in a commit

@@ -7,15 +7,16 @@ import (
 )
 
 var (
+	// Default styling for shortcut rendering
 	ShortcutKeyStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#666666")).
+				Foreground(ColorFrostBlue). // nord frost blue
 				Bold(true)
 
 	ShortcutDescStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#525252")) // nord muted gray
+				Foreground(ColorMutedGrayDark) // nord muted gray
 
 	ShortcutSeparatorStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#525252")).
+				Foreground(ColorMutedGrayDark).
 				Padding(0, 1) // " | " padding
 )
 

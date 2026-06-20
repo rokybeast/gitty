@@ -62,30 +62,30 @@ type Model struct {
 }
 
 var (
-	explicitCheckStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Bold(true)
-	implicitCheckStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Faint(true)
+	explicitCheckStyle = lipgloss.NewStyle().Foreground(common.ColorGreen).Bold(true)
+	implicitCheckStyle = lipgloss.NewStyle().Foreground(common.ColorGreen).Faint(true)
 	uncheckedStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("#4C566A"))
 	hashStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color("#81A1C1"))
-	msgStyle           = lipgloss.NewStyle().Foreground(lipgloss.Color("#eceff4"))
-	cursorStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("#88C0D0")).Bold(true)
-	titleStyle         = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#88c0d0")).PaddingLeft(4)
+	msgStyle           = lipgloss.NewStyle().Foreground(common.ColorSnow)
+	cursorStyle        = lipgloss.NewStyle().Foreground(common.ColorFrostBlue).Bold(true)
+	titleStyle         = lipgloss.NewStyle().Bold(true).Foreground(common.ColorFrostBlue).PaddingLeft(4)
 
 	pushSuccessStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#A3BE8C")). // nord green
+				Foreground(common.ColorGreen). // nord green
 				Bold(true).
 				PaddingLeft(4)
 
 	pushDetailStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#d8dee9")). // nord snow
+			Foreground(common.ColorSnowDark). // nord snow
 			PaddingLeft(4)
 
 	pushHintStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#4c566a")). // nord muted gray
+			Foreground(common.ColorMutedGray). // nord muted gray
 			PaddingLeft(4).
 			MarginTop(1)
 
 	pushErrorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#BF616A")). // nord red
+			Foreground(common.ColorRed). // nord red
 			Bold(true).
 			PaddingLeft(4)
 )
@@ -110,7 +110,7 @@ func New(width, height int) Model {
 		Frames: []string{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
 		FPS:    time.Millisecond * 100,
 	}
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#88c0d0"))
+	s.Style = lipgloss.NewStyle().Foreground(common.ColorFrostBlue)
 
 	return Model{
 		step:    step,
@@ -291,12 +291,12 @@ func (m Model) View() string {
 			}
 			statusText := ""
 			if r.upToDate {
-				statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#A3BE8C")).Render("[up to date]")
+				statusText = lipgloss.NewStyle().Foreground(common.ColorGreen).Render("[up to date]")
 			} else {
-				statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#BF616A")).Render("[not up to date]")
+				statusText = lipgloss.NewStyle().Foreground(common.ColorRed).Render("[not up to date]")
 			}
 			urlStyle := lipgloss.NewStyle().Faint(true)
-			remoteNameStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#eceff4"))
+			remoteNameStyle := lipgloss.NewStyle().Bold(true).Foreground(common.ColorSnow)
 			view.WriteString(fmt.Sprintf("%s%s%s %s %s %s\n",
 				indent,
 				cursorPrefix,
@@ -336,7 +336,7 @@ func (m Model) View() string {
 			selectedRemote = m.remotes[0].name
 		}
 		boldRemote := lipgloss.NewStyle().Bold(true).Render(selectedRemote)
-		arrow := lipgloss.NewStyle().Foreground(lipgloss.Color("#88C0D0")).Bold(true).Render("->")
+		arrow := lipgloss.NewStyle().Foreground(common.ColorFrostBlue).Bold(true).Render("->")
 
 		if m.pushing {
 			spinnerStr := m.spinner.View()
@@ -579,12 +579,12 @@ func (m Model) viewDone() string {
 	if m.pushErr != "" {
 		errMsg := pushErrorStyle.Render("push failed!")
 		detail := pushDetailStyle.Render(m.pushErr)
-		
+
 		shortcuts := []common.Shortcut{
 			{Key: "esc", Desc: "back"},
 		}
 		footer := "\n  " + common.RenderShortcuts(shortcuts)
-		
+
 		return lipgloss.JoinVertical(lipgloss.Left, "", errMsg, "", detail, "", footer)
 	}
 
@@ -593,14 +593,14 @@ func (m Model) viewDone() string {
 
 	hasChanges, hasPushes := git.CheckRepoStatus()
 	if !hasChanges && !hasPushes {
-		messageStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#81a1c1")).Bold(true)
+		messageStyle := lipgloss.NewStyle().Foreground(common.ColorFrostLightBlue).Bold(true)
 		msg := messageStyle.Render(fmt.Sprintf("󰳏 %s/%s is clean and nothing is left, are you done for the day? hope not ;)", repoName, branch))
-		
+
 		shortcuts := []common.Shortcut{
 			{Key: "esc/enter/q", Desc: "back"},
 		}
 		footer := common.RenderShortcuts(shortcuts)
-		
+
 		fullText := lipgloss.JoinVertical(lipgloss.Center, msg, "", footer)
 		return lipgloss.NewStyle().
 			Width(m.width).

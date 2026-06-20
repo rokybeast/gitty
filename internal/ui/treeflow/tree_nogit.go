@@ -10,6 +10,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"gitty/internal/ui/common"
 )
 
 type PickedMsg struct {
@@ -18,11 +19,11 @@ type PickedMsg struct {
 
 var (
 	gitRepoStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#a3be8c")). // nord green
+			Foreground(common.ColorGreen). // nord green
 			Bold(true)
 
 	errStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#bf616a")). // nord red
+			Foreground(common.ColorRed). // nord red
 			PaddingLeft(4)
 )
 
