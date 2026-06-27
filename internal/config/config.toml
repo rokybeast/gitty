@@ -1,4 +1,4 @@
-# Gitty Configuration File
+# Default Zetagit Configuration File
 
 [config]
 theme = "nord"  # default theme
@@ -18,23 +18,9 @@ diff_add_bg = "#2e3b32"
 diff_del_bg = "#3b2e2e"
 diff_line_bg = "#3b4252"
 
-[themes.catppuccin_mocha]
-primary = "#89b4fa"
-primary_light = "#b4befe"
-text = "#cdd6f4"
-text_dark = "#bac2de"
-muted = "#6c7086"
-muted_dark = "#585b70"
-success = "#a6e3a1"
-error = "#f38ba8"
-warning = "#fab387"
-diff_add_bg = "#273b33"
-diff_del_bg = "#3f2d35"
-diff_line_bg = "#313244"
-
-[commits]
+[commit]
 templates = true
 
-[commits.entries]
+[commit.entries]
 name = "feat"
 description = "feature - when you add something new"
