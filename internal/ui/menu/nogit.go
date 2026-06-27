@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"gitty/internal/ui/common"
+	"zetagit/internal/ui/common"
 )
 
 // menu entry ids
@@ -58,12 +58,12 @@ func NewNoGit() NoGitModel {
 	items := []list.Item{
 		item{id: IDInitRepo, title: "󰳏 Initialize a Git Repository", desc: "set up a new repo with the base files (readme.md, license, .gitignore)"},
 		item{id: IDNavigate, title: "󱣱 Navigate to a Git Repository", desc: "browse to an existing repo"},
-		item{id: IDAbout, title: "󰋼 About gitty", desc: "info about gitty"},
-		item{id: IDQuit, title: "󰈆 Quit", desc: "exit gitty :("},
+		item{id: IDAbout, title: "󰋼 About zetagit", desc: "info about zetagit"},
+		item{id: IDQuit, title: "󰈆 Quit", desc: "exit zetagit :("},
 	}
 
 	l := list.New(items, nordListDelegate(), 0, 0)
-	l.Title = "gitty - v0.1.0 (unstable; not yet released)"
+	l.Title = "zetagit - v0.1.0 (unstable; not yet released)"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 	l.SetShowHelp(true)

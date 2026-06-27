@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitty/internal/ui/common"
+	"zetagit/internal/ui/common"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"

@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"gitty/internal/ui/common"
+	"zetagit/internal/ui/common"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

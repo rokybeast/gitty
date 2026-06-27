@@ -1,7 +1,7 @@
 package about
 
 import (
-	"gitty/internal/ui/common"
+	"zetagit/internal/ui/common"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -45,12 +45,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	title := titleStyle.Render("    about gitty")
+	title := titleStyle.Render("    about zetagit")
 	body := bodyStyle.Render(
-		"  gitty is a feature-rich, aesthetically good looking and mainly, a minimal TUI tool.\n" +
+		"  zetagit is a feature-rich, aesthetically good looking and mainly, a minimal TUI tool.\n" +
 			"  built with golang, and with 󰋑 for  \n\n" +
 			"  version: 0.3.0 alpha\n" + // yes, static version for now..
-			"  github repository (want to contribute?): github.com/rokybeast/gitty",
+			"  github repository (want to contribute?): github.com/rokybeast/zetagit",
 	)
 
 	shortcuts := []common.Shortcut{

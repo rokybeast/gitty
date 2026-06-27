@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"gitty/internal/ui/config"
+	"zetagit/internal/config"
 )
 
 var (

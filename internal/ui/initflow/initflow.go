@@ -5,8 +5,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"gitty/internal/git"
-	"gitty/internal/ui/common"
+	"zetagit/internal/git"
+	"zetagit/internal/ui/common"
 )
 
 var titleStyle = lipgloss.NewStyle().
@@ -135,7 +135,7 @@ func (m Model) loadLicenseList() Model {
 		items[i] = item{template: t}
 	}
 	l := list.New(items, nordListDelegate(), m.width, m.height)
-	l.Title = "choose a license (gitty does not warn you about the legality of licenses, for that, contact saul goodman!)"
+	l.Title = "choose a license (zetagit does not warn you about the legality of licenses, for that, contact saul goodman!)"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 	l.Styles.Title = titleStyle

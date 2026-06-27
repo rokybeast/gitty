@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"gitty/internal/git"
-	"gitty/internal/ui/common"
+	"zetagit/internal/git"
+	"zetagit/internal/ui/common"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"

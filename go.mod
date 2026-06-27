@@ -1,4 +1,4 @@
-module gitty
+module zetagit
 
 go 1.26.4
 

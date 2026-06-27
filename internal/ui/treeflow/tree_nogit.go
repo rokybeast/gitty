@@ -10,7 +10,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"gitty/internal/ui/common"
+	"zetagit/internal/ui/common"
 )
 
 type PickedMsg struct {

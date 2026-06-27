@@ -5,7 +5,7 @@ import "strings"
 // simple boilerplate for a new project
 const ReadmeTemplate = `# New Project
 
-Initialized with [gitty](https://github.com/rokybeast/gitty).
+Initialized with [zetagit](https://github.com/rokybeast/zetagit).
 `
 
 // holds data for a template option

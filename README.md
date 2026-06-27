@@ -1,13 +1,13 @@
-# gitty
+# zetagit
 
 a minimal, yet feature rich git tui; built with go and love.
 
 ## Arch (AUR Planned)
 
-To get `gitty`, run this command
+To get `zetagit`, run this command
 
 ```
-yay -S gitty # do note that this WILL build the binary in your computer
+yay -S zetagit # do note that this WILL build the binary in your computer
 ```
 
 Required Dependencies:
