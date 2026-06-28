@@ -1,7 +1,7 @@
 package about
 
 import (
-	"gitry/internal/ui/common"
+	"zengit/internal/ui/common"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -45,12 +45,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	title := titleStyle.Render("    about gitry")
+	title := titleStyle.Render("    about zengit")
 	body := bodyStyle.Render(
-		"  gitry is a feature-rich, aesthetically good looking and mainly, a minimal TUI tool.\n" +
+		"  zengit is a feature-rich, aesthetically good looking and mainly, a minimal TUI tool.\n" +
 			"  built with golang, and with 󰋑 for  \n\n" +
 			"  version: " + common.Version + "\n" +
-			"  github repository (want to contribute?): github.com/rokybeast/gitry",
+			"  github repository (want to contribute?): github.com/rokybeast/zengit",
 	)
 
 	shortcuts := []common.Shortcut{

@@ -1,4 +1,4 @@
-module gitry
+module zengit
 
 go 1.26.4
 

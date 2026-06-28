@@ -1,4 +1,4 @@
-# Default Gitry Configuration File
+# Default Zengit Configuration File
 
 [config]
 theme = "nord"  # default theme
@@ -24,3 +24,6 @@ templates = true
 [commit.entries]
 name = "feat"
 description = "feature - when you add something new"
+
+[editor]
+preferred-editor = "vim"

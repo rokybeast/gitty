@@ -8,8 +8,9 @@ import (
 	"sort"
 	"strings"
 
-	"gitry/internal/git"
-	"gitry/internal/ui/common"
+	"zengit/internal/config"
+	"zengit/internal/git"
+	"zengit/internal/ui/common"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -139,6 +140,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.refresh()
 				}
 			}
+		case "e":
+			// open file in preferred editor (no folder support)
+			if len(m.nodes) > 0 {
+				node := m.nodes[m.cursor]
+				if !node.isDir {
+					editor := config.GetPreferredEditor()
+					cmd := exec.Command(editor, node.path)
+					return m, tea.ExecProcess(cmd, func(err error) tea.Msg {
+						return nil
+					})
+				}
+			}
 		}
 	}
 	return m, nil
@@ -242,6 +255,7 @@ func (m Model) View() string {
 	shortcuts := []common.Shortcut{
 		{Key: "enter/esc", Desc: "go back"},
 		{Key: "space", Desc: "toggle folder"},
+		{Key: "e", Desc: "open in editor"},
 	}
 	if m.isAddFiles {
 		shortcuts = append(shortcuts, common.Shortcut{Key: "a", Desc: "stage/unstage"})

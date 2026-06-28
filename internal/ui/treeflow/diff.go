@@ -7,7 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"gitry/internal/ui/common"
+	"zengit/internal/config"
+	"zengit/internal/ui/common"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -85,6 +86,15 @@ func (m AddFilesDiffModel) Update(msg tea.Msg) (AddFilesDiffModel, tea.Cmd) {
 			m.detailed = !m.detailed
 			m.rebuildContent()
 			return m, nil
+		case "e":
+			// open file in preferred editor (no folder support)
+			if !m.isDir {
+				editor := config.GetPreferredEditor()
+				cmd := exec.Command(editor, m.path)
+				return m, tea.ExecProcess(cmd, func(err error) tea.Msg {
+					return nil
+				})
+			}
 		}
 	}
 
@@ -112,6 +122,7 @@ func (m AddFilesDiffModel) View() string {
 		{Key: "esc/q", Desc: "back"},
 		{Key: "j/k", Desc: "scroll"},
 		{Key: "o", Desc: toggleHint},
+		{Key: "e", Desc: "open in editor"},
 	}
 	footer := "\n  " + common.RenderShortcuts(shortcuts) + "\n"
 

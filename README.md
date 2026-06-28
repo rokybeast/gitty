@@ -1,4 +1,4 @@
-# gitry
+# zengit
 
 a minimal, yet feature rich git tui; built with go and love.
 
@@ -6,22 +6,22 @@ a minimal, yet feature rich git tui; built with go and love.
 
 ## arch linux
 
-to get `gitry` on Arch Linux, run this command
+to get `zengit` on Arch Linux, run this command
 
 ```bash
 # prebuilt binary
-yay -S gitry
+yay -S zengit
 
 # builds from this repo
-yay -S gitry-git
+yay -S zengit-git
 ```
 
 ## golang native
 
-to get `gitry` directly from go's binary package, run this command
+to get `zengit` directly from go's binary package, run this command
 
 ```bash
-go install github.com/rokybeast/gitry@latest
+go install github.com/rokybeast/zengit@latest
 ```
 make sure you have the `~/go/bin` in your path!
 

@@ -16,6 +16,12 @@ type Config struct {
 	Config  CoreConfig       `toml:"config"`
 	Themes  map[string]Theme `toml:"themes"`
 	Commits CommitConfig     `toml:"commit"`
+	Editor  EditorConfig     `toml:"editor"`
+}
+
+// editor config
+type EditorConfig struct {
+	PreferredEditor string `toml:"preferred-editor"`
 }
 
 type CoreConfig struct {
@@ -61,7 +67,7 @@ func LoadConfig() error {
 	// try to load user config if exists
 	home, err := os.UserHomeDir()
 	if err == nil {
-		userConfigPath := filepath.Join(home, ".config", "gitry", "config.toml") // no windows support for now..
+		userConfigPath := filepath.Join(home, ".config", "zengit", "config.toml") // no windows support for now..
 		if data, err := os.ReadFile(userConfigPath); err == nil {
 			// override with user config
 			if _, err := toml.Decode(string(data), &AppConfig); err != nil {
@@ -81,6 +87,14 @@ func GetCurrentTheme() Theme {
 	}
 	// just in case, if the themes dont work, a fallback
 	return AppConfig.Themes["nord"]
+}
+
+// get preferred editor from config or fallback to vim
+func GetPreferredEditor() string {
+	if AppConfig.Editor.PreferredEditor != "" {
+		return AppConfig.Editor.PreferredEditor
+	}
+	return "vim"
 }
 
 func init() {

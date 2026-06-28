@@ -5,9 +5,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"gitry/internal/git"
-	"gitry/internal/ui/common"
-	"gitry/internal/config"
+	"zengit/internal/git"
+	"zengit/internal/ui/common"
+	"zengit/internal/config"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"

@@ -1,12 +1,12 @@
 package menu
 
 import (
-	"gitry/internal/git"
+	"zengit/internal/git"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"gitry/internal/ui/common"
+	"zengit/internal/ui/common"
 )
 
 type GitChoiceMsg struct {
@@ -51,8 +51,8 @@ func NewGit(width, height int) GitModel {
 		item{id: IDTree, title: "󰙅 Project Tree", desc: "view and manage tracked files"},
 		item{id: IDHistory, title: "󰋚 Commit History", desc: "browse the commit log with a nice graph"},
 		item{id: IDOtherTools, title: "󱈧 Other Git Tools", desc: "all the other git tools you need"},
-		item{id: IDAbout, title: "󰋼 About gitry", desc: "info about gitry"},
-		item{id: IDQuit, title: "󰈆 Quit", desc: "exit gitry :("},
+		item{id: IDAbout, title: "󰋼 About zengit", desc: "info about zengit"},
+		item{id: IDQuit, title: "󰈆 Quit", desc: "exit zengit :("},
 	}
 
 	branch := git.CurrentBranch()

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitry/internal/ui/common"
+	"zengit/internal/ui/common"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -229,7 +229,7 @@ func (m *DiffModel) buildDetailed() string {
 		case opModify:
 			if f.isBinary {
 				b.WriteString(diffFileStyle.Render(nfBinary+" binfile: "+f.path) + "\n")
-				b.WriteString("\n" + diffBodyStyle.Render("gitry cannot load raw binary files") + "\n")
+				b.WriteString("\n" + diffBodyStyle.Render("zengit cannot load raw binary files") + "\n")
 			} else {
 				b.WriteString(diffFileStyle.Render(nfModify+" edit file: "+f.path) + "\n")
 				if f.diffText != "" {

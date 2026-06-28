@@ -7,7 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"gitry/internal/ui/common"
+	"zengit/internal/config"
+	"zengit/internal/ui/common"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -164,6 +165,18 @@ func (m AddFilesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.diffModel = newAddFilesDiffModel(path, entry.isDir, m.width, m.height)
 				m.showDiff = true
 			}
+		case "e":
+			// open file in preferred editor (no folder support)
+			if len(m.entries) > 0 && m.cursor < len(m.entries) {
+				entry := m.entries[m.cursor]
+				if !entry.isDir {
+					editor := config.GetPreferredEditor()
+					cmd := exec.Command(editor, entry.path)
+					return m, tea.ExecProcess(cmd, func(err error) tea.Msg {
+						return nil
+					})
+				}
+			}
 		}
 	}
 	return m, nil
@@ -297,6 +310,7 @@ func (m AddFilesModel) View() string {
 		{Key: "space", Desc: "toggle folder"},
 		{Key: "a", Desc: "toggle file/folder"},
 		{Key: "A", Desc: "stage all"},
+		{Key: "e", Desc: "open in editor"},
 	}
 
 	if len(m.entries) > maxVisible {

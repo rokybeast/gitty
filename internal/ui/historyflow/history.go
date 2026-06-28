@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"gitry/internal/git"
-	"gitry/internal/ui/common"
+	"zengit/internal/git"
+	"zengit/internal/ui/common"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

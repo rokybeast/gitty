@@ -5,8 +5,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"gitry/internal/git"
-	"gitry/internal/ui/common"
+	"zengit/internal/git"
+	"zengit/internal/ui/common"
 )
 
 type PickedMsg struct {
